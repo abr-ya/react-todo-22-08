@@ -28,8 +28,18 @@ body[data-theme='light'] {
 
 body {
   margin: 0;
+  padding: 10px;
   font-family: var(--family);
   color: var(--colors-text);
   font-weight: var(--fw-light);
   background-color: var(--colors-bg);
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+}
+
+label, button {
+  cursor: pointer;
 }

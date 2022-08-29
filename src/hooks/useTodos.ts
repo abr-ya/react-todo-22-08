@@ -1,21 +1,16 @@
+import { ITodo } from "interfaces";
 import { useCallback, useReducer } from "react";
 
 type ActionType =
   | { type: "ADD"; title: string }
   | { type: "REMOVE"; id: string };
 
-interface Todo {
-  id: string;
-  title: string;
-  completed: boolean;
-}
-
-export function useTodos(initialTodos: Todo[]): {
-  todos: Todo[];
+export function useTodos(initialTodos: ITodo[]): {
+  todos: ITodo[];
   addTodo: (title: string) => void;
   removeTodo: (id: string) => void;
 } {
-  const [todos, dispatch] = useReducer((state: Todo[], action: ActionType) => {
+  const [todos, dispatch] = useReducer((state: ITodo[], action: ActionType) => {
     switch (action.type) {
       case "ADD":
         return [

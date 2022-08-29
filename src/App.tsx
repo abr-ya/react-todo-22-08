@@ -1,36 +1,37 @@
-import { useCallback, useRef } from "react";
-import { useTodos } from "./hooks/useTodos";
-import "./App.css";
+import { useSelector, useDispatch } from "react-redux";
+import TodoList from "./components/TodoList";
+import AddToDoForm from "./components/AddToDoForm";
+import {
+  addTodo,
+  toggleTodo,
+  deleteTodo,
+  selectTodos,
+} from "./store/todoSlice";
 
 const App = () => {
-  const { todos, addTodo, removeTodo } = useTodos([
-    { id: "1", title: "Проснуться!", completed: false },
-    { id: "2", title: "Позавтракать", completed: false },
-    { id: "3", title: "Сходить на работу", completed: false },
-  ]);
+  const todos = useSelector(selectTodos); // data for List
 
-  const newTodoRef = useRef<HTMLInputElement>(null);
-
-  const onAddTodo = useCallback(() => {
-    if (newTodoRef.current) {
-      addTodo(newTodoRef.current.value);
-      newTodoRef.current.value = "";
-    }
-  }, [addTodo]);
+  // work with Store
+  const dispatch = useDispatch();
+  const addHandler = (text: string) => {
+    dispatch(addTodo(text));
+  };
+  const toggleHandler = (id: string) => {
+    dispatch(toggleTodo(id));
+  };
+  const deleteHandler = (id: string) => {
+    dispatch(deleteTodo(id));
+  };
 
   return (
     <div className="App">
       <h1>ToDo List App</h1>
-      {todos.map((todo) => (
-        <div key={todo.id}>
-          {todo.title}
-          <button onClick={() => removeTodo(todo.id)}>Remove</button>
-        </div>
-      ))}
-      <div>
-        <input type="text" ref={newTodoRef} />
-        <button onClick={onAddTodo}>Add Todo</button>
-      </div>
+      <AddToDoForm addHandler={addHandler} />
+      <TodoList
+        todos={todos}
+        toggleHandler={toggleHandler}
+        deleteHandler={deleteHandler}
+      />
     </div>
   );
 };
