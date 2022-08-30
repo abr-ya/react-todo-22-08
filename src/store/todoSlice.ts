@@ -1,6 +1,6 @@
 import { AnyAction, createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { ITodo } from "interfaces";
-import { getTodosReguest } from "services/api";
+import { addTodoReguest, getTodosReguest } from "services/api";
 import { RootStateType } from "./index";
 import { typedCatchHandler } from "./utils";
 
@@ -35,6 +35,26 @@ export const getTodos = createAsyncThunk<ITodo[], undefined, { rejectValue: stri
   },
 );
 
+export const addTodo = createAsyncThunk<ITodo, string, { rejectValue: string }>(
+  "todos/addTodo",
+  async function (title, { rejectWithValue }) {
+    const todo = {
+      title,
+      userId: 1, // temp
+      completed: false, // default ))
+    };
+
+    try {
+      const { data, status } = await addTodoReguest(todo);
+      const not201mes = "Axios получил результат, но статус не 200.";
+      return status === 201 ? data : rejectWithValue(not201mes);
+    } catch (error) {
+      // rejectWithValue с проверкой типа ошибки и шаблоном сообщения
+      return typedCatchHandler(error, rejectWithValue, "addTodo");
+    }
+  },
+);
+
 const todoSlice = createSlice({
   name: "todos",
   initialState,
@@ -48,19 +68,20 @@ const todoSlice = createSlice({
         state.loading = false;
         state.todos = action.payload;
       })
+      .addCase(addTodo.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(addTodo.fulfilled, (state, action) => {
+        state.loading = false;
+        state.todos.push(action.payload);
+      })
       .addMatcher(isError, (state, action: PayloadAction<string>) => {
         state.error = action.payload;
         state.loading = false;
       });
   },
   reducers: {
-    addTodo(state, action) {
-      state.todos.push({
-        id: new Date().toISOString(),
-        title: action.payload,
-        completed: false,
-      });
-    },
     toggleTodo(state, action: PayloadAction<string>) {
       // console.log(state, action);
       state.todos.forEach((el) => {
@@ -75,7 +96,7 @@ const todoSlice = createSlice({
   },
 });
 
-export const { addTodo, toggleTodo, deleteTodo } = todoSlice.actions;
+export const { toggleTodo, deleteTodo } = todoSlice.actions;
 
 export const selectTodos = (state: RootStateType) => state.todos.todos;
 export const selectTodosFull = (state: RootStateType) => state.todos;

@@ -42,7 +42,7 @@ const App = () => {
   return (
     <div className="App">
       <h1>ToDo List App</h1>
-      <h2>TypeScript, Webpack 5, React, Redux Toolkit, API, ESLint, Prettier</h2>
+      <h2>TypeScript, Webpack 5, React, Redux Toolkit, Axios, ESLint, Prettier</h2>
       {renderContent()}
     </div>
   );
