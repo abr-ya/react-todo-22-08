@@ -1,46 +1,63 @@
-import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { AnyAction, createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { ITodo } from "interfaces";
 import { RootStateType } from "./index";
 
-const initialTodoes: ITodo[] = [];
+interface ITodosState {
+  todos: ITodo[];
+  loading: boolean;
+  error: string | null;
+}
 
-export const getTodos = createAsyncThunk("todos/getTodos", async (_params, { rejectWithValue }) => {
-  try {
-    const response = await fetch("https://jsonplaceholder.typicode.com/todos?_limit=10");
+const initialState: ITodosState = {
+  todos: [],
+  loading: false,
+  error: null,
+};
 
-    if (response.ok) {
-      const data = await response.json();
-      console.log(data);
+function isError(action: AnyAction) {
+  return action.type.endsWith("rejected");
+}
 
-      return data;
-    } else {
-      throw new Error("getTodos error!");
+export const getTodos = createAsyncThunk<ITodo[], undefined, { rejectValue: string }>(
+  "todos/getTodos",
+  async (_params, { rejectWithValue }) => {
+    // без try-catch нормально 404 не обрабатывался
+    try {
+      const response = await fetch("https://jsonplaceholder.typicode.com/todos?_limit=10");
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log(data);
+
+        return data;
+      } else {
+        throw new Error("getTodos response !ok");
+      }
+    } catch (error: any) {
+      console.log("getTodos catch error:", error.message);
+
+      return rejectWithValue(error.message);
     }
-  } catch (error: any) {
-    return rejectWithValue(error.message);
-  }
-});
+  },
+);
 
 const todoSlice = createSlice({
   name: "todos",
-  initialState: {
-    todos: initialTodoes,
-    status: null,
-    error: null,
-  },
-  extraReducers: {
-    [getTodos.pending]: (state) => {
-      state.status = "loading";
-      state.error = "null";
-    },
-    [getTodos.fulfilled]: (state, action) => {
-      state.status = "resolved";
-      state.todos = action.payload;
-    },
-    [getTodos.rejected]: (state, action) => {
-      state.status = "error";
-      state.error = action.payload;
-    },
+  initialState,
+  extraReducers: (builder) => {
+    builder
+      .addCase(getTodos.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getTodos.fulfilled, (state, action) => {
+        state.loading = false;
+        state.todos = action.payload;
+      })
+      .addMatcher(isError, (state, action: PayloadAction<string>) => {
+        state.error = action.payload;
+        state.loading = false;
+      });
   },
   reducers: {
     addTodo(state, action) {

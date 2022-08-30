@@ -1,18 +1,18 @@
-import { useSelector, useDispatch } from "react-redux";
 import TodoList from "./components/TodoList";
 import AddToDoForm from "./components/AddToDoForm";
 import { addTodo, toggleTodo, deleteTodo, selectTodos, getTodos, selectTodosFull } from "./store/todoSlice";
 import { useEffect } from "react";
+import { useAppDispatch, useAppSelector } from "hooks/typedRedux";
 
 const App = () => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     dispatch(getTodos());
   }, []);
 
-  const todos = useSelector(selectTodos);
-  const { status, error } = useSelector(selectTodosFull);
+  const todos = useAppSelector(selectTodos);
+  const { loading, error } = useAppSelector(selectTodosFull);
 
   // work with Store
   const addHandler = (text: string) => {
@@ -25,10 +25,11 @@ const App = () => {
     dispatch(deleteTodo(id));
   };
 
+  // loading / error / content ??
   const renderContent = () => {
-    if (status === "loading") return <span>loading ...</span>;
+    if (loading) return <span>loading ...</span>;
 
-    if (status === "error") return <span>Что-то пошло не так: {error}</span>;
+    if (error) return <span>Что-то пошло не так: {error}</span>;
 
     return (
       <>
@@ -41,7 +42,7 @@ const App = () => {
   return (
     <div className="App">
       <h1>ToDo List App</h1>
-      <h2>TypeScript, Webpack 5, React, Redux Toolkit, ESLint, Prettier</h2>
+      <h2>TypeScript, Webpack 5, React, Redux Toolkit, API, ESLint, Prettier</h2>
       {renderContent()}
     </div>
   );
