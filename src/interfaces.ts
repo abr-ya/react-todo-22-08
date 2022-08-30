@@ -9,3 +9,8 @@ export interface IPostTodo {
   completed: boolean;
   userId: number;
 }
+
+export interface IPatchTodo {
+  id: string;
+  completed: boolean;
+}

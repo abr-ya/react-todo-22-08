@@ -1,5 +1,5 @@
 import axios from "axios";
-import { IPostTodo } from "interfaces";
+import { IPatchTodo, IPostTodo } from "interfaces";
 
 const baseUrl = "https://jsonplaceholder.typicode.com/";
 // const apiKey = process.env.API_KEY;
@@ -16,4 +16,17 @@ export const addTodoReguest = async (todo: IPostTodo) => {
   const { data, status } = await axios.post(`${baseUrl}todos`, todo);
 
   return { data, status };
+};
+
+export const toggleTodoReguest = async ({ id, completed }: IPatchTodo) => {
+  const { data, status } = await axios.patch(`${baseUrl}todos/${id}`, { completed });
+
+  return { data, status };
+};
+
+export const deleteTodoReguest = async (id: string) => {
+  // data здесь бессмысленна - она пустая
+  const { status } = await axios.delete(`${baseUrl}todos/${id}`);
+
+  return { data: { id }, status };
 };
