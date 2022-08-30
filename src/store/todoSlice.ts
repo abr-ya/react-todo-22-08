@@ -1,6 +1,8 @@
 import { AnyAction, createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { ITodo } from "interfaces";
+import { getTodosReguest } from "services/api";
 import { RootStateType } from "./index";
+import { typedCatchHandler } from "./utils";
 
 interface ITodosState {
   todos: ITodo[];
@@ -23,20 +25,12 @@ export const getTodos = createAsyncThunk<ITodo[], undefined, { rejectValue: stri
   async (_params, { rejectWithValue }) => {
     // без try-catch нормально 404 не обрабатывался
     try {
-      const response = await fetch("https://jsonplaceholder.typicode.com/todos?_limit=10");
-
-      if (response.ok) {
-        const data = await response.json();
-        console.log(data);
-
-        return data;
-      } else {
-        throw new Error("getTodos response !ok");
-      }
-    } catch (error: any) {
-      console.log("getTodos catch error:", error.message);
-
-      return rejectWithValue(error.message);
+      const { data, status } = await getTodosReguest();
+      const not200mes = "Axios получил результат, но статус не 200.";
+      return status === 200 ? data : rejectWithValue(not200mes);
+    } catch (error) {
+      // rejectWithValue с проверкой типа ошибки и шаблоном сообщения
+      return typedCatchHandler(error, rejectWithValue, "getTodos");
     }
   },
 );
