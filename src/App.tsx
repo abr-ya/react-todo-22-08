@@ -1,12 +1,7 @@
 import { useSelector, useDispatch } from "react-redux";
 import TodoList from "./components/TodoList";
 import AddToDoForm from "./components/AddToDoForm";
-import {
-  addTodo,
-  toggleTodo,
-  deleteTodo,
-  selectTodos,
-} from "./store/todoSlice";
+import { addTodo, toggleTodo, deleteTodo, selectTodos } from "./store/todoSlice";
 
 const App = () => {
   const todos = useSelector(selectTodos); // data for List
@@ -26,12 +21,9 @@ const App = () => {
   return (
     <div className="App">
       <h1>ToDo List App</h1>
+      <h2>TypeScript, Webpack 5, React, Redux Toolkit, ESLint, Prettier</h2>
       <AddToDoForm addHandler={addHandler} />
-      <TodoList
-        todos={todos}
-        toggleHandler={toggleHandler}
-        deleteHandler={deleteHandler}
-      />
+      <TodoList todos={todos} toggleHandler={toggleHandler} deleteHandler={deleteHandler} />
     </div>
   );
 };

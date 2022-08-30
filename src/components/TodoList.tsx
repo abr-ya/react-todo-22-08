@@ -1,6 +1,13 @@
+import { ITodo } from "interfaces";
 import TodoItem from "./TodoItem";
 
-const TodoList = ({ todos, toggleHandler, deleteHandler }) => (
+interface ITodoList {
+  todos: ITodo[];
+  toggleHandler: (id: string) => void;
+  deleteHandler: (id: string) => void;
+}
+
+const TodoList = ({ todos, toggleHandler, deleteHandler }: ITodoList) => (
   <ul>
     {todos.map(({ id, title, completed }) => (
       <TodoItem

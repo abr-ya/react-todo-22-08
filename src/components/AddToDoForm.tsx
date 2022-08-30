@@ -1,13 +1,17 @@
-import { useState } from "react";
+import { ChangeEvent, SyntheticEvent, useState } from "react";
 
-const AddToDoForm = ({ addHandler }) => {
+interface IAddToDoForm {
+  addHandler: (text: string) => void;
+}
+
+const AddToDoForm = ({ addHandler }: IAddToDoForm) => {
   const [text, setText] = useState("");
 
-  const changeHandler = (e) => {
-    setText(e.target.value);
+  const changeHandler = (target: HTMLInputElement) => {
+    setText(target.value);
   };
 
-  const submitHandler = (e) => {
+  const submitHandler = (e: SyntheticEvent) => {
     e.preventDefault();
     if (text.trim().length) {
       addHandler(text.trim());
@@ -17,10 +21,14 @@ const AddToDoForm = ({ addHandler }) => {
 
   return (
     <form onSubmit={submitHandler}>
-      <input type="text" value={text} onChange={changeHandler} />
+      <input
+        type="text"
+        value={text}
+        onChange={(e: ChangeEvent<HTMLInputElement>) => changeHandler(e.target as HTMLInputElement)}
+      />
       <button type="submit">Add Todo</button>
     </form>
   );
-}
+};
 
 export default AddToDoForm;
