@@ -1,19 +1,50 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { ITodo } from "interfaces";
 import { RootStateType } from "./index";
 
-const initialTodoes: ITodo[] = [
-  { id: "1", title: "Проснуться!", completed: false },
-  { id: "2", title: "Позавтракать", completed: false },
-  { id: "3", title: "Сходить на работу", completed: false },
-];
+const initialTodoes: ITodo[] = [];
+
+export const getTodos = createAsyncThunk("todos/getTodos", async (_params, { rejectWithValue }) => {
+  try {
+    const response = await fetch("https://jsonplaceholder.typicode.com/todos?_limit=10");
+
+    if (response.ok) {
+      const data = await response.json();
+      console.log(data);
+
+      return data;
+    } else {
+      throw new Error("getTodos error!");
+    }
+  } catch (error: any) {
+    return rejectWithValue(error.message);
+  }
+});
 
 const todoSlice = createSlice({
   name: "todos",
-  initialState: initialTodoes,
+  initialState: {
+    todos: initialTodoes,
+    status: null,
+    error: null,
+  },
+  extraReducers: {
+    [getTodos.pending]: (state) => {
+      state.status = "loading";
+      state.error = "null";
+    },
+    [getTodos.fulfilled]: (state, action) => {
+      state.status = "resolved";
+      state.todos = action.payload;
+    },
+    [getTodos.rejected]: (state, action) => {
+      state.status = "error";
+      state.error = action.payload;
+    },
+  },
   reducers: {
     addTodo(state, action) {
-      state.push({
+      state.todos.push({
         id: new Date().toISOString(),
         title: action.payload,
         completed: false,
@@ -21,20 +52,21 @@ const todoSlice = createSlice({
     },
     toggleTodo(state, action: PayloadAction<string>) {
       // console.log(state, action);
-      state.forEach((el) => {
+      state.todos.forEach((el) => {
         // eslint-disable-next-line no-param-reassign
         if (el.id === action.payload) el.completed = !el.completed;
       });
     },
     deleteTodo(state, action: PayloadAction<string>) {
       // console.log(state, action);
-      return state.filter((el) => el.id !== action.payload); // можно было написать state = ...
+      state.todos = state.todos.filter((el) => el.id !== action.payload);
     },
   },
 });
 
 export const { addTodo, toggleTodo, deleteTodo } = todoSlice.actions;
 
-export const selectTodos = (state: RootStateType) => state.todos;
+export const selectTodos = (state: RootStateType) => state.todos.todos;
+export const selectTodosFull = (state: RootStateType) => state.todos;
 
 export default todoSlice.reducer;
