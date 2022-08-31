@@ -1,1 +1,1 @@
-API_KEY=string
+CLIENT_ID=string
